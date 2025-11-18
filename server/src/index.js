@@ -2,7 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+
+// Routes
 import authRoutes from "./routes/authRoutes.js";
+import contentRoutes from "./routes/contentRoutes.js"; // <-- DODANE
 
 dotenv.config();
 
@@ -19,6 +22,7 @@ app.get("/api/health", (req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/content", contentRoutes); // <-- DODANE
 
 // Connect to MongoDB
 const PORT = process.env.PORT || 5000;
