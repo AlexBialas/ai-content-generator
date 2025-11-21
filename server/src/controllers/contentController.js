@@ -1,4 +1,3 @@
-// src/controllers/contentController.js
 import Content from "../models/Content.js";
 
 // POST /api/content/generate
@@ -10,11 +9,11 @@ export const generateContent = async (req, res) => {
       return res.status(400).json({ message: "Prompt is required" });
     }
 
-    // 🔮 FAKE AI – później podepniemy prawdziwe AI (OpenAI / cokolwiek)
+    // 🔮 FAKE AI – później tu podepniemy prawdziwe AI
     const fakeOutput = `Generated content for: "${prompt}" (this is a placeholder, real AI coming soon)`;
 
     const newContent = await Content.create({
-      user: req.user._id, // ustawiane przez middleware auth
+      user: req.user.id, // ID z middleware auth
       prompt,
       output: fakeOutput,
       model: "fake-ai-v1",
@@ -30,7 +29,7 @@ export const generateContent = async (req, res) => {
 // GET /api/content/history
 export const getMyContent = async (req, res) => {
   try {
-    const items = await Content.find({ user: req.user._id })
+    const items = await Content.find({ user: req.user.id })
       .sort({ createdAt: -1 })
       .limit(50);
 
@@ -43,44 +42,23 @@ export const getMyContent = async (req, res) => {
   }
 };
 
-// GET /api/content/:id
-export const getContentById = async (req, res) => {
+// DELETE /api/content/:id
+export const deleteMyContentItem = async (req, res) => {
   try {
-    const item = await Content.findOne({
-      _id: req.params.id,
-      user: req.user._id,
-    });
+    const { id } = req.params;
+
+    // Szukamy TYLKO contentu zalogowanego usera
+    const item = await Content.findOne({ _id: id, user: req.user.id });
 
     if (!item) {
       return res.status(404).json({ message: "Content not found" });
     }
 
-    res.json(item);
-  } catch (err) {
-    console.error("Error in getContentById:", err.message);
-    res
-      .status(500)
-      .json({ message: "Server error while fetching single content item" });
-  }
-};
-
-// DELETE /api/content/:id
-export const deleteContent = async (req, res) => {
-  try {
-    const removed = await Content.findOneAndDelete({
-      _id: req.params.id,
-      user: req.user._id,
-    });
-
-    if (!removed) {
-      return res.status(404).json({ message: "Content not found" });
-    }
+    await item.deleteOne();
 
     res.json({ message: "Content deleted successfully" });
   } catch (err) {
-    console.error("Error in deleteContent:", err.message);
-    res
-      .status(500)
-      .json({ message: "Server error while deleting content item" });
+    console.error("Error in deleteMyContentItem:", err.message);
+    res.status(500).json({ message: "Server error while deleting content" });
   }
 };
