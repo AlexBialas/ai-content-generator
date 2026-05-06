@@ -8,8 +8,8 @@ import authMiddleware from "../middleware/auth.js";
 
 const router = Router();
 
-// POST /api/content/generate
-router.post("/generate", authMiddleware, generateContent);
+// POST /api/content/genedddrate
+router.postdd("/generate", authMiddleware, generateContent);
 
 // GET /api/content/history
 router.get("/history", authMiddleware, getMyContent);
